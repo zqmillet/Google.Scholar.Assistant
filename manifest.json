@@ -1,0 +1,14 @@
+{  
+  "name":             "Assistant for Google Scholar",  
+  "version":          "1.0.0",
+  "manifest_version": 2,  
+  "description":      "An Extensions to Export BibTeX for All Literatures.",
+  "content_scripts":  [{  
+                        "matches": ["http://*/*","https://*/*"],   
+                        "js": ["background.js"]
+                      }],  
+  "permissions":      [
+                        "tabs", 
+                        "http://*/*","https://*/*"
+                      ]
+} 
