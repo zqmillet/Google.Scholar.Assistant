@@ -3,6 +3,10 @@
   "version":          "1.0.0",
   "manifest_version": 2,  
   "description":      "An Extensions of Google Chrom to Export BibTeX for All Literatures.",
+  "browser_action":   {
+                        "default_icon": "Logo.png",
+                        "default_title": "Assistant for Google Scholar"
+                      },
   "content_scripts":  [{  
                         "matches": ["http://*/*","https://*/*"],   
                         "js": ["background.js"]

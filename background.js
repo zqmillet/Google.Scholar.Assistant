@@ -1,52 +1,60 @@
-if (document.title.indexOf("学术搜索") == -1)
+if (!IsGoogleScholar())
   exit();
 
-var List = document.getElementById("gs_ccl");
 var ToolBar = document.createElement("div");
-var CheckBox = document.createElement("input");
-CheckBox.setAttribute("type", "checkbox");
-CheckBox.setAttribute("id", "checkboxselectall");
-CheckBox.addEventListener("click", CheckboxSelectAllStateChange);
 
-var Label = document.createTextNode("Select All Literatures.");
+var CheckBoxSelectAll = document.createElement("input");
+CheckBoxSelectAll.setAttribute("type", "checkbox");
+CheckBoxSelectAll.setAttribute("id", "checkboxselectall");
+CheckBoxSelectAll.addEventListener("click", CheckboxSelectAllStateChange);
+ToolBar.appendChild(CheckBoxSelectAll);
+
+var LabelSelectAll = document.createTextNode("Select All Entries.");
+ToolBar.appendChild(LabelSelectAll);
+
 var ExportButton = document.createElement("input");
 ExportButton.setAttribute("type", "button");
 ExportButton.setAttribute("value", "Export Citations");
 ExportButton.setAttribute("style", "margin-left:10pt");
 ExportButton.addEventListener("click", ExportButtonClick);
-ToolBar.appendChild(CheckBox);
-ToolBar.appendChild(Label);
 ToolBar.appendChild(ExportButton);
-List.insertBefore(ToolBar, List.firstChild);
+
+var EntryList = document.getElementById("gs_ccl");
+EntryList.insertBefore(ToolBar, EntryList.firstChild);
 
 var NodeList = document.getElementsByTagName("div"); 
-for(i = 0; i < NodeList.length; i++)
-{
-  if (NodeList.item(i).getAttribute('class') == 'gs_r')
-  {
-    var ControlBox = document.createElement("div");
-    ControlBox.setAttribute("style", "float:left");
-    var CheckBox = document.createElement("input");
-    CheckBox.setAttribute("name", "checkboxliterature");
-    CheckBox.setAttribute("type", "checkbox");
-    ControlBox.appendChild(CheckBox);
-    document.getElementById("gs_ccl_results").insertBefore(ControlBox, NodeList.item(i));
-    i += 1;
-  }
+for(Index = 0; Index < NodeList.length; Index++){
+    if (NodeList.item(Index).getAttribute('class') == 'gs_r')    {
+        var ControlBox = document.createElement("div");
+        ControlBox.setAttribute("style", "float:left");
+        var CheckBox = document.createElement("input");
+        CheckBox.setAttribute("name", "checkboxliterature");
+        CheckBox.setAttribute("type", "checkbox");
+        ControlBox.appendChild(CheckBox);
+        document.getElementById("gs_ccl_results").insertBefore(ControlBox, NodeList.item(Index));
+        Index++;
+    }
 }
 
-var ObserveNode = document.getElementById("gs_citd");
-var Observer = new MutationObserver(callback)
-Observer.observe(ObserveNode, {childList:true, subtree:true});
+var ObservedElement = document.getElementById("gs_citd");
+var Observer = new MutationObserver(OnElementChanged)
+Observer.observe(ObservedElement, {childList:true, subtree:true});
 
 var BibTeXLinkList = new Array();
-var EntryCount = 0;
+var BibTeXLinkListLength = 0;
+var ProcessedEntryCount = 0;
 
+var BibTeXString = "";
+var ResponseCount = 0;
+
+function IsGoogleScholar(){
+    return document.documentElement.getAttribute("class") == "gs_el_sm";
+}
 
 function ExportButtonClick()
 {
   BibTeXLinkList = new Array();
-  EntryCount = 0;
+  ProcessedEntryCount = 0;
 
   var CheckBoxNodeList = document.getElementsByName("checkboxliterature");
 
@@ -68,7 +76,7 @@ function ExportButtonClick()
           if (OnClickString.indexOf("gs_ocit") == -1)
             continue;
 
-          EntryCount ++;
+          ProcessedEntryCount ++;
           LinkNodeList.item(j).click();          
         }        
       } 
@@ -87,20 +95,15 @@ function CheckboxSelectAllStateChange()
   }
 }
 
-
-var BibTeXString = "";
-var BibTeXLinkListLength = 0;
-var ResponseCount = 0;
-
-function callback(records)
+function OnElementChanged(records)
 {
   var Node = document.getElementById('gs_citi');
   if (Node == null)
     return;
 
   BibTeXLinkList.push(Node.firstChild.getAttribute("href"));
-  EntryCount --;
-  if (EntryCount)
+  ProcessedEntryCount --;
+  if (ProcessedEntryCount)
     return;
   
   BibTeXLinkListLength = BibTeXLinkList.length;
