@@ -1,42 +1,74 @@
-if (!IsGoogleScholar())
-  exit();
+if(typeof ClassNames == "undefined"){
+  var ClassNames = {};
+  ClassNames.Entry = "gs_r";
+}
 
-var ToolBar = document.createElement("div");
+if(typeof IDs == "undefined"){
+  var IDs = {};
+  IDs.EntryList = "gs_ccl_results";
+  IDs.CiteDisplay = "gs_citd";
+  IDs.MainInterface = "gs_ccl";
+}
 
-var CheckBoxSelectAll = document.createElement("input");
-CheckBoxSelectAll.setAttribute("type", "checkbox");
-CheckBoxSelectAll.setAttribute("id", "checkboxselectall");
-CheckBoxSelectAll.addEventListener("click", CheckboxSelectAllStateChange);
+if(typeof Attributes == "undefined"){
+  var Attributes = {};
+  Attributes.ID = "id";
+  Attributes.Type = "type";
+  Attributes.Style = "style";
+  Attributes.Name = "name";
+  Attributes.Value = "value";
+  Attributes.Class = "class";
+  Attributes.OnClick = "onclick";
+}
+
+if(typeof Events == "undefined"){
+  var Events = {};
+  Events.Click = "click";
+}
+
+if(typeof TagNames == "undefined"){
+  var TagNames = {};
+  TagNames.Input = "input";
+  TagNames.Division = "div";
+  TagNames.Anchor = "a";
+}
+
+var ToolBar = document.createElement(TagNames.Division);
+
+var CheckBoxSelectAll = document.createElement(TagNames.Input);
+CheckBoxSelectAll.setAttribute(Attributes.Type, "checkbox");
+CheckBoxSelectAll.setAttribute(Attributes.ID, "checkboxselectall");
+CheckBoxSelectAll.addEventListener(Events.Click, CheckboxSelectAllStateChange);
 ToolBar.appendChild(CheckBoxSelectAll);
 
 var LabelSelectAll = document.createTextNode("Select All Entries.");
 ToolBar.appendChild(LabelSelectAll);
 
-var ExportButton = document.createElement("input");
-ExportButton.setAttribute("type", "button");
-ExportButton.setAttribute("value", "Export Citations");
-ExportButton.setAttribute("style", "margin-left:10pt");
-ExportButton.addEventListener("click", ExportButtonClick);
+var ExportButton = document.createElement(TagNames.Input);
+ExportButton.setAttribute(Attributes.Type, "button");
+ExportButton.setAttribute(Attributes.Value, "Export Citations");
+ExportButton.setAttribute(Attributes.Style, "margin-left:10pt");
+ExportButton.addEventListener(Events.Click, ExportButtonClick);
 ToolBar.appendChild(ExportButton);
 
-var EntryList = document.getElementById("gs_ccl");
+var EntryList = document.getElementById(IDs.MainInterface);
 EntryList.insertBefore(ToolBar, EntryList.firstChild);
 
-var NodeList = document.getElementsByTagName("div"); 
+var NodeList = document.getElementsByTagName(TagNames.Division); 
 for(Index = 0; Index < NodeList.length; Index++){
-    if (NodeList.item(Index).getAttribute('class') == 'gs_r')    {
+    if (NodeList.item(Index).getAttribute('class') == ClassNames.Entry)    {
         var ControlBox = document.createElement("div");
-        ControlBox.setAttribute("style", "float:left");
-        var CheckBox = document.createElement("input");
-        CheckBox.setAttribute("name", "checkboxliterature");
-        CheckBox.setAttribute("type", "checkbox");
+        ControlBox.setAttribute(Attributes.Style, "float:left");
+        var CheckBox = document.createElement(TagNames.Input);
+        CheckBox.setAttribute(Attributes.Name, "checkboxliterature");
+        CheckBox.setAttribute(Attributes.Type, "checkbox");
         ControlBox.appendChild(CheckBox);
-        document.getElementById("gs_ccl_results").insertBefore(ControlBox, NodeList.item(Index));
+        document.getElementById(IDs.EntryList).insertBefore(ControlBox, NodeList.item(Index));
         Index++;
     }
 }
 
-var ObservedElement = document.getElementById("gs_citd");
+var ObservedElement = document.getElementById(IDs.CiteDisplay);
 var Observer = new MutationObserver(OnElementChanged)
 Observer.observe(ObservedElement, {childList:true, subtree:true});
 
@@ -47,8 +79,9 @@ var ProcessedEntryCount = 0;
 var BibTeXString = "";
 var ResponseCount = 0;
 
+
 function IsGoogleScholar(){
-    return document.documentElement.getAttribute("class") == "gs_el_sm";
+    // return document.documentElement.getAttribute("class") == "gs_el_sm";
 }
 
 function ExportButtonClick()
@@ -58,19 +91,19 @@ function ExportButtonClick()
 
   var CheckBoxNodeList = document.getElementsByName("checkboxliterature");
 
-  var LiteratureNodeList = document.getElementsByTagName("div");
+  var LiteratureNodeList = document.getElementsByTagName(TagNames.Division);
   var LiteratureIndex = 0;
   for(i = 0; i < LiteratureNodeList.length; i++)
   {
-    if (LiteratureNodeList.item(i).getAttribute('class') == 'gs_r')
+    if (LiteratureNodeList.item(i).getAttribute(Attributes.Class) == ClassNames.Entry)
     {
       if (CheckBoxNodeList.item(LiteratureIndex).checked)
       {
-        var LinkNodeList = LiteratureNodeList.item(i).getElementsByTagName('a');
+        var LinkNodeList = LiteratureNodeList.item(i).getElementsByTagName(TagNames.Anchor);
         for (j = 0; j < LinkNodeList.length; j++)
         {
           var CiteButton = LinkNodeList.item(j);
-          var OnClickString = LinkNodeList.item(j).getAttribute("onclick");
+          var OnClickString = LinkNodeList.item(j).getAttribute(Attributes.OnClick);
           if (OnClickString == null)
             continue;
           if (OnClickString.indexOf("gs_ocit") == -1)
@@ -132,4 +165,3 @@ function ReadyStateChange(Request)
     }
   }
 }
-
