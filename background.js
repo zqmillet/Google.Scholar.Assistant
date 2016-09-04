@@ -9,6 +9,7 @@ if(typeof IDs == "undefined"){
     IDs.CiteDisplay     = "gs_citd";
     IDs.MainInterface   = "gs_ccl";
     IDs.CiteItem        = "gs_citi";
+    IDs.CheckBoxSelectAll = "CheckBoxSelectAll";
 }
 
 if(typeof Attributes == "undefined"){
@@ -35,6 +36,11 @@ if(typeof TagNames == "undefined"){
     TagNames.Anchor     = "a";
 }
 
+if(typeof Names == "undefined"){
+    var Names           = {};
+    Names.CheckBoxLiterature = "CheckBoxLiterature";
+}
+
 if(typeof InputType == "undefined"){
     var InputType       = {};
     InputType.Button    = "button";
@@ -43,7 +49,14 @@ if(typeof InputType == "undefined"){
     InputType.Password  = "password";
 }
 
-+function(){
+var BibTeXLinkList = new Array();
+var BibTeXLinkListLength = 0;
+var ProcessedEntryCount = 0;
+var BibTeXString = "";
+var ResponseCount = 0;
+Start();
+
+function Start(){
     if (!IsGoogleScholarPage())        
         return false;
 
@@ -53,7 +66,7 @@ if(typeof InputType == "undefined"){
 
     var CheckBoxSelectAll = document.createElement(TagNames.Input);
     CheckBoxSelectAll.setAttribute(Attributes.Type, InputType.CheckBox);
-    CheckBoxSelectAll.setAttribute(Attributes.ID, "checkboxselectall");
+    CheckBoxSelectAll.setAttribute(Attributes.ID, IDs.CheckBoxSelectAll);
     CheckBoxSelectAll.addEventListener(Events.Click, CheckboxSelectAllStateChange);
     ToolBar.appendChild(CheckBoxSelectAll);
 
@@ -77,7 +90,7 @@ if(typeof InputType == "undefined"){
         var ControlBox = document.createElement(TagNames.Division);
         ControlBox.setAttribute(Attributes.Style, "float:left");
         var CheckBox = document.createElement(TagNames.Input);
-        CheckBox.setAttribute(Attributes.Name, "checkboxliterature");
+        CheckBox.setAttribute(Attributes.Name, Names.CheckBoxLiterature);
         CheckBox.setAttribute(Attributes.Type, InputType.CheckBox);
         ControlBox.appendChild(CheckBox);
         document.getElementById(IDs.EntryList).insertBefore(ControlBox, NodeList.item(Index));
@@ -86,15 +99,8 @@ if(typeof InputType == "undefined"){
 
     var ObservedElement = document.getElementById(IDs.CiteDisplay);
     var Observer = new MutationObserver(OnElementChanged)
-    Observer.observe(ObservedElement, {childList:true, subtree:true});
-
-    var BibTeXLinkList = new Array();
-    var BibTeXLinkListLength = 0;
-    var ProcessedEntryCount = 0;
-
-    var BibTeXString = "";
-    var ResponseCount = 0;
-}();
+    Observer.observe(ObservedElement, {childList:true, subtree :true});
+}
 
 function IsGoogleScholarPage(){
     if (document.getElementById(IDs.CiteDisplay) == null)
@@ -111,7 +117,7 @@ function ExportButtonClick()
     BibTeXLinkList = new Array();
     ProcessedEntryCount = 0;
 
-    var CheckBoxNodeList = document.getElementsByName("checkboxliterature");
+    var CheckBoxNodeList = document.getElementsByName(Names.CheckBoxLiterature);
 
     var LiteratureNodeList = document.getElementsByTagName(TagNames.Division);
     var LiteratureIndex = 0;
@@ -142,8 +148,8 @@ function ExportButtonClick()
 
 function CheckboxSelectAllStateChange()
 {
-    var NodeList = document.getElementsByName("checkboxliterature");
-    var Checked = document.getElementById("checkboxselectall").checked;
+    var NodeList = document.getElementsByName(Names.CheckBoxLiterature);
+    var Checked = document.getElementById(IDs.CheckBoxSelectAll).checked;
     for(i = 0; i < NodeList.length; i++)
         NodeList.item(i).checked = Checked;
 }
